@@ -1,4 +1,3 @@
-#!/usr/bin/python
 from TimeWorked import *
 import os
 files = [i for i in os.listdir(os.getcwd()) if 'Time Worked' in i]
