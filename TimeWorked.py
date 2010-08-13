@@ -1,39 +1,40 @@
+#!/usr/bin/python
 from __future__ import with_statement
 from datetime import *
 from time import *
 import re
-fmt = '%A, %B %d, %Y %H:%M.%S'
-fname = 'Break Time.txt'
+
 def write_begin_time():
     try:
-        f = file(fname, 'r')
-        lines = [i for i in f]
-        f.close()
+        with open('Time Worked.txt', 'r') as f:
+            lines = f.readlines()
     except Exception:
-        with file(fname, 'w') as f:
+        with open('Time Worked.txt', 'w') as f:
             lines = []
-    #fmt = '\n'.join(['%' + i for i in 'aAbBcdHIjmMpSUwWxXyYZ%'])
-    with file(fname, 'a') as f:
-        f.write('Start: ' + datetime.now().strftime(fmt) + '\n')
+    fmt = '\n'.join(['%' + i for i in 'aAbBcdHIjmMpSUwWxXyYZ%'])
+    with open('Time Worked.txt', 'a') as f:
+        f.write('Start: ' + datetime.now().strftime('%A, %B %d, %Y %H:%M.%S') + '\n')
 
 def write_end_time():
-    with file(fname, 'r') as f:
-        lines = [i for i in f]
-    start = datetime.strptime(lines[-1][len('Start: '):-1], fmt)
-    with file(fname, 'a') as f:
-        f.write('End: ' + datetime.now().strftime(fmt) + '\n')
+    with open('Time Worked.txt', 'r') as f:
+        lines = f.readlines()
+    start = datetime.strptime(lines[-1][len('Start: '):].strip(), '%A, %B %d, %Y %H:%M.%S')
+    with open('Time Worked.txt', 'a') as f:
+        f.write('End: ' + datetime.now().strftime('%A, %B %d, %Y %H:%M.%S') + '\n')
         f.write('Time Spent: ' + str(datetime.now() - start) + '\n\n')
 
 def get_total_time(begin=None, end=None):
-    return get_total_timef(fname, begin, end)
+    return get_total_timef('Time Worked.txt', begin, end)
 
 def get_total_timef(file_name=None, begin=None, end=None):
-    with file(file_name, 'r') as f:
-        lines = [i for i in f]
+    with open(file_name, 'r') as f:
+        lines = f.readlines()
     lines2 = []
     for i in range(len(lines)):
         if lines[i][:len('Time Spent: ')] == 'Time Spent: ':
-            lines2.append([datetime.strptime(lines[i - 2][len('Start: '):-1], fmt), datetime.strptime(lines[i - 1][len('End: '):-1], fmt), lines[i][len('Time Spent: '):-1]])
+            lines2.append([datetime.strptime(lines[i - 2][len('Start: '):].strip(), '%A, %B %d, %Y %H:%M.%S'),
+                           datetime.strptime(lines[i - 1][len('End: '):].strip(), '%A, %B %d, %Y %H:%M.%S'),
+                           lines[i][len('Time Spent: '):].strip()])
     for i in lines2:
         if 'day' in i[-1]:
             if '.' in i[-1]:
@@ -60,7 +61,6 @@ def get_total_timef(file_name=None, begin=None, end=None):
             if end == None or i[1] <= end:
                 total += begin - i[end]
     return total
-
 def get_total_time_files(file_list, begin=None, end=None):
     rtn = get_total_timef(file_list[0], begin, end)
     for i in file_list[1:]:
@@ -69,12 +69,12 @@ def get_total_time_files(file_list, begin=None, end=None):
 
 def split_time():
     total = get_total_time()
-    with file(fname, 'r') as f:
-        lines = [i for i in f]
+    with open('Time Worked.txt', 'r') as f:
+        lines = f.readlines()
     lines2 = []
     for i in range(len(lines)):
         if lines[i][:len('Time Spent: ')] == 'Time Spent: ':
-            lines2.append([datetime.strptime(lines[i - 2][len('Start: '):-1], fmt), datetime.strptime(lines[i - 1][len('End: '):-1], fmt), lines[i][len('Time Spent: '):-1]])
+            lines2.append([datetime.strptime(lines[i - 2][len('Start: '):].strip(), '%A, %B %d, %Y %H:%M.%S'), datetime.strptime(lines[i - 1][len('End: '):].strip(), '%A, %B %d, %Y %H:%M.%S'), lines[i][len('Time Spent: '):].strip()])
     for i in lines2:
         if 'day' in i[-1]:
             if '.' in i[-1]:
@@ -92,11 +92,9 @@ def split_time():
                 i[-1] = timedelta(0, i[-1][2] + 60 * (i[-1][1] + 60 * i[-1][0]), 0)
     begin = lines2[0][0]
     end = lines2[-1][1]
-    f = file('Time Spent (From ' + begin.strftime('%Y-%b-%d') + ' to ' + end.strftime('%Y-%b-%d') + ').txt', 'w')
-    for i in lines:
-        f.write(i)
-    f.write('\nTotal Time: ' + str(total))
-    f.close()
-    f = file(fname, 'w')
-    f.write('')
-    f.close()
+    with open('Time Worked (From ' + begin.strftime('%Y-%m-%d (%b)') + ' to ' + end.strftime('%Y-%m-%d (%b)') + ').txt', 'w') as f:
+        for i in lines:
+            f.write(i)
+        f.write('\nTotal Time: ' + str(total))
+    with open('Time Worked.txt', 'w') as f:
+        f.write('')

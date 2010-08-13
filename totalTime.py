@@ -1,3 +1,4 @@
 #!/usr/bin/python
 from TimeWorked import *
-write_begin_time()
+print get_total_time()
+raw_input()
