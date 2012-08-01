@@ -1,3 +1,6 @@
+# Time log files
+Time Worked*.txt
+
 *.py[co]
 
 # Packages
