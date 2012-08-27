@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # TimeWorked.py
 # Utility file to record working time
-# Version 1.2, 2012-06-18
+# Version 1.3, 2012-08-27
 from __future__ import with_statement
 from datetime import *
 from time import *
@@ -213,8 +213,11 @@ def get_total_time_by_day(get_time_method, begin=None, end=None):
 def get_total_time_by_day_files(file_list, begin=None, end=None):
     days = get_total_time_by_day((lambda begin, end: get_total_time_files(file_list, begin, end)), begin, end)
     rtn = ''
+    total = timedelta(0)
     for day in sorted(days.keys()):
         rtn += day.strftime('%a, %B %d, %Y') + ': ' + str(days[day]) + '\n'
+        total += days[day]
+    rtn += '\nTotal: ' + str(total)
     return rtn
 
 def split_time():
