@@ -1,8 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # TimeWorked.py
 # Utility file to record working time
-# Version 1.3, 2012-08-27
-from __future__ import with_statement
+# Version 1.4, 2023-12-26
+
 from datetime import *
 from time import *
 import re, os
@@ -102,7 +102,7 @@ class TimeWorked(object):
 
     def parse_many(cls, log_entries, fmt=TIME_FORMAT):
         log_entries = [i.strip() for i in log_entries.split('\n\n') if 'Total Time:' not in i and i.strip()]
-        return map(lambda log: TimeWorked.parse(log, fmt=fmt), log_entries)
+        return [TimeWorked.parse(log, fmt=fmt) for log in log_entries]
     parse_many = classmethod(parse_many)
 
     def get_start_block(self):
@@ -132,7 +132,7 @@ def read_time_file(file_name=TIME_WORKED, print_error=True):
     except Exception as e:
         if print_error:
             print(e)
-            raw_input()
+            input()
         raise e
     return read_time_log(lines, print_error=print_error)
 
@@ -156,7 +156,7 @@ def write_end_time(file_name=TIME_WORKED, sleep_time=1):
     times = read_time_file(file_name)
     if times[-1].end is not None:
         print("No open time block.")
-        raw_input()
+        input()
         raise Exception("No open time block.")
     times[-1].stop()
     with open(file_name, 'a') as f:
@@ -185,7 +185,7 @@ def get_total_timef_between(file_name, begin=None, end=None):
 
 def get_total_timef(file_name, converter=(lambda time: time)):
     times = read_time_file(file_name)
-    return sum(map(converter, times), timedelta(0))
+    return sum(list(map(converter, times)), timedelta(0))
 def get_total_time_files(file_list, begin=None, end=None):
     rtn = get_total_timef_between(file_list[0], begin, end)
     for i in file_list[1:]:
